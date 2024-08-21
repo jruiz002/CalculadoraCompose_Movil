@@ -36,7 +36,7 @@ val buttonsList = listOf(
     "7", "8", "9", "*",
     "4", "5", "6", "-",
     "1", "2", "3", "+",
-    "0", "=", "/",
+    "0", ".", "=", "/"
 )
 
 // Funciones que realizan la logica de la calculadora
@@ -73,13 +73,17 @@ private fun infixToPostfix(expresion: String): String {
         while (i < cleanedExpression.length) {
             val c = cleanedExpression[i]
 
-            if (c.isLetterOrDigit()) {
-                while (i < cleanedExpression.length && cleanedExpression[i].isLetterOrDigit()) {
-                    result.append(cleanedExpression[i])
-                    i++
+            // Reconocimiento de números con signo negativo y decimales
+            if (c.isDigit() || c == '.' || (c == '-' && (i == 0 || cleanedExpression[i - 1] == '('))) {
+                if (c == '-') result.append(c) // Añadir el signo negativo al número
+                else {
+                    while (i < cleanedExpression.length && (cleanedExpression[i].isDigit() || cleanedExpression[i] == '.')) {
+                        result.append(cleanedExpression[i])
+                        i++
+                    }
+                    result.append(' ')
+                    i--
                 }
-                result.append(' ')
-                i--
             } else if (c == '(') {
                 stack.push(c)
             } else if (c == ')') {
@@ -136,7 +140,7 @@ private fun evaluatePostfix(postfix: List<String>): Double {
                         "*" -> a * b
                         "/" -> a / b
                         "^" -> a.pow(b)
-                        else -> throw IllegalArgumentException("Unknown operator: $token")
+                        else -> throw IllegalArgumentException("Operador desconocido: $token")
                     }
                 )
             }
